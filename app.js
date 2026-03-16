@@ -11,7 +11,7 @@ const token = process.env.BOT_TOKEN;
 const giftedApiKey = process.env.GIFTED_API_KEY || "gifted";
 
 if (!token) {
-  console.error("BOT_TOKEN is missing. Add it to your environment variables.");
+  console.error("BOT_TOKEN is missing.");
   process.exit(1);
 }
 
@@ -23,19 +23,19 @@ bot.on("polling_error", (error) => {
   console.log("Polling error:", error.message);
 });
 
+function getUserName(msg) {
+  return msg.from?.first_name || msg.from?.username || "friend";
+}
+
 bot.setMyCommands([
   { command: "start", description: "Start the bot" },
   { command: "help", description: "Show help" },
   { command: "about", description: "About this bot" },
-  { command: "time", description: "Show current server time" },
+  { command: "time", description: "Show server time" },
   { command: "joke", description: "Tell a joke" },
   { command: "bye", description: "Say goodbye" },
-  { command: "ai", description: "Ask the AI something" }
+  { command: "ai", description: "Ask the AI a question" }
 ]);
-
-function getUserName(msg) {
-  return msg.from?.first_name || msg.from?.username || "friend";
-}
 
 bot.onText(/\/start/, (msg) => {
   startCommand(bot, msg);
@@ -81,7 +81,7 @@ bot.onText(/\/joke/, (msg) => {
       chatId,
       "Node.js developers do not sleep, they wait for callbacks."
     );
-  }, 1500);
+  }, 1200);
 });
 
 bot.onText(/\/bye/, (msg) => {
@@ -102,22 +102,26 @@ bot.onText(/\/ai (.+)/, async (msg, match) => {
   try {
     bot.sendChatAction(chatId, "typing");
 
-    const response = await axios.get("https://api.giftedtech.co.ke/api/ai/ai", {
-      params: {
-        apikey: giftedApiKey,
-        q: question
-      }
-    });
+    const url =
+      "https://api.giftedtech.co.ke/api/ai/ai?apikey=" +
+      giftedApiKey +
+      "&q=" +
+      encodeURIComponent(question);
 
-    const answer =
+    const response = await axios.get(url);
+
+    console.log("AI API response:", response.data);
+
+    const reply =
       response.data?.result ||
+      response.data?.response ||
       response.data?.message ||
-      "I did not get a valid response from the AI.";
+      "AI returned no response.";
 
-    bot.sendMessage(chatId, answer);
+    bot.sendMessage(chatId, reply);
   } catch (error) {
     console.error("AI command error:", error.message);
-    bot.sendMessage(chatId, "Sorry, I could not get an AI response right now.");
+    bot.sendMessage(chatId, "AI service is currently unavailable.");
   }
 });
 
@@ -152,12 +156,9 @@ bot.on("message", (msg) => {
     } else if (text === "hi" || text === "hello") {
       bot.sendMessage(chatId, `Hi ${name} 👋`);
     } else if (text === "how are you") {
-      bot.sendMessage(
-        chatId,
-        `I am doing great, ${name}! Thanks for asking.`
-      );
+      bot.sendMessage(chatId, `I am doing great, ${name}!`);
     } else if (text === "bye") {
-      bot.sendMessage(chatId, `Goodbye ${name}! See you next time.`);
+      bot.sendMessage(chatId, `Goodbye ${name}!`);
     } else {
       bot.sendMessage(chatId, `You said: ${msg.text}`);
     }

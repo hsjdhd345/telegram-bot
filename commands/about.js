@@ -1,7 +1,21 @@
 function aboutCommand(bot, msg) {
   bot.sendMessage(
     msg.chat.id,
-    "I am a Telegram bot built with Node.js. I can chat, tell jokes, show time, and answer AI questions."
+`🤖 Telegram Utility Bot
+
+Built with:
+• Node.js
+• Telegram Bot API
+• Axios
+• Railway hosting
+
+Features:
+• AI chat
+• Jokes
+• Time command
+• Chat interaction
+
+More commands coming soon 🚀`
   );
 }
 
