@@ -106,12 +106,24 @@ bot.onText(/\/ai (.+)/, async (msg, match) => {
       question
     )}&owner=BotOwner&botname=NodeBot`;
 
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      timeout: 15000,
+      validateStatus: () => true,
+    });
+
+    console.log("AI status:", response.status);
+    console.log("AI data:", response.data);
 
     const reply =
       response.data?.response ||
       response.data?.message ||
-      "AI returned no response.";
+      response.data?.result ||
+      null;
+
+    if (!reply) {
+      bot.sendMessage(chatId, "AI service returned no valid answer.");
+      return;
+    }
 
     bot.sendMessage(chatId, reply);
   } catch (error) {
