@@ -102,31 +102,21 @@ bot.onText(/\/ai (.+)/, async (msg, match) => {
   try {
     bot.sendChatAction(chatId, "typing");
 
-    const url = `https://api.giftedtech.co.ke/api/ai/ai?apikey=gifted&q=${encodeURIComponent(question)}`;
+    const response = await axios.get(
+      `https://api.popcat.xyz/chatbot?msg=${encodeURIComponent(question)}&owner=Yusuf&botname=NodeBot`
+    );
 
-    const response = await axios.get(url);
-
-    console.log("Gifted API response:", response.data);
-
-    let reply = "AI could not generate a response.";
-
-    if (response.data) {
-      reply =
-        response.data.result ||
-        response.data.response ||
-        response.data.message ||
-        JSON.stringify(response.data);
-    }
-
-    bot.sendMessage(chatId, reply);
+    bot.sendMessage(chatId, response.data.response);
 
   } catch (error) {
-    console.error("AI request failed:", error.response?.data || error.message);
-    bot.sendMessage(chatId, "AI service is currently unavailable.");
+    console.log("AI request failed:", error.message);
+    bot.sendMessage(chatId, "AI service is temporarily unavailable.");
   }
 });
+  
 
-bot.onText(/\/ai$/, (msg) => {
+bot}
+});.onText(/\/ai$/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
     "Use the command like this:\n/ai What is Node.js?"
