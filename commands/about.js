@@ -1,7 +1,7 @@
 function aboutCommand(bot, msg) {
   bot.sendMessage(
     msg.chat.id,
-`🤖 Telegram Utility Bot
+    `🤖 Telegram Utility Bot
 
 Built with:
 • Node.js
@@ -10,10 +10,10 @@ Built with:
 • Railway hosting
 
 Features:
-• AI chat
+• AI replies
 • Jokes
 • Time command
-• Chat interaction
+• Friendly chat
 
 More commands coming soon 🚀`
   );

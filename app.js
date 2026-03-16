@@ -8,7 +8,6 @@ const aboutCommand = require("./commands/about");
 const getTime = require("./utils/getTime");
 
 const token = process.env.BOT_TOKEN;
-const giftedApiKey = process.env.GIFTED_API_KEY || "gifted";
 
 if (!token) {
   console.error("BOT_TOKEN is missing.");
@@ -48,7 +47,7 @@ bot.onText(/\/help/, (msg) => {
 
   setTimeout(() => {
     helpCommand(bot, msg);
-  }, 1000);
+  }, 800);
 });
 
 bot.onText(/\/about/, (msg) => {
@@ -58,7 +57,7 @@ bot.onText(/\/about/, (msg) => {
 
   setTimeout(() => {
     aboutCommand(bot, msg);
-  }, 1000);
+  }, 800);
 });
 
 bot.onText(/\/time/, (msg) => {
@@ -68,7 +67,7 @@ bot.onText(/\/time/, (msg) => {
 
   setTimeout(() => {
     bot.sendMessage(chatId, `Server time: ${getTime()}`);
-  }, 1000);
+  }, 800);
 });
 
 bot.onText(/\/joke/, (msg) => {
@@ -92,9 +91,10 @@ bot.onText(/\/bye/, (msg) => {
 
   setTimeout(() => {
     bot.sendMessage(chatId, `Goodbye ${name}! See you next time.`);
-  }, 1000);
+  }, 800);
 });
 
+// AI command using Popcat
 bot.onText(/\/ai (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const question = match[1];
@@ -102,21 +102,25 @@ bot.onText(/\/ai (.+)/, async (msg, match) => {
   try {
     bot.sendChatAction(chatId, "typing");
 
-    const response = await axios.get(
-      `https://api.popcat.xyz/chatbot?msg=${encodeURIComponent(question)}&owner=Yusuf&botname=NodeBot`
-    );
+    const url = `https://api.popcat.xyz/chatbot?msg=${encodeURIComponent(
+      question
+    )}&owner=BotOwner&botname=NodeBot`;
 
-    bot.sendMessage(chatId, response.data.response);
+    const response = await axios.get(url);
 
+    const reply =
+      response.data?.response ||
+      response.data?.message ||
+      "AI returned no response.";
+
+    bot.sendMessage(chatId, reply);
   } catch (error) {
-    console.log("AI request failed:", error.message);
-    bot.sendMessage(chatId, "AI service is temporarily unavailable.");
+    console.log("AI request failed:", error.response?.data || error.message);
+    bot.sendMessage(chatId, "AI service is currently unavailable.");
   }
 });
-  
 
-bot}
-});.onText(/\/ai$/, (msg) => {
+bot.onText(/\/ai$/, (msg) => {
   bot.sendMessage(
     msg.chat.id,
     "Use the command like this:\n/ai What is Node.js?"
@@ -153,5 +157,5 @@ bot.on("message", (msg) => {
     } else {
       bot.sendMessage(chatId, `You said: ${msg.text}`);
     }
-  }, 1000);
+  }, 800);
 });
