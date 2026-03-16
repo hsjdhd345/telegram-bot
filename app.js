@@ -102,25 +102,26 @@ bot.onText(/\/ai (.+)/, async (msg, match) => {
   try {
     bot.sendChatAction(chatId, "typing");
 
-    const url =
-      "https://api.giftedtech.co.ke/api/ai/ai?apikey=" +
-      giftedApiKey +
-      "&q=" +
-      encodeURIComponent(question);
+    const url = `https://api.giftedtech.co.ke/api/ai/ai?apikey=gifted&q=${encodeURIComponent(question)}`;
 
     const response = await axios.get(url);
 
-    console.log("AI API response:", response.data);
+    console.log("Gifted API response:", response.data);
 
-    const reply =
-      response.data?.result ||
-      response.data?.response ||
-      response.data?.message ||
-      "AI returned no response.";
+    let reply = "AI could not generate a response.";
+
+    if (response.data) {
+      reply =
+        response.data.result ||
+        response.data.response ||
+        response.data.message ||
+        JSON.stringify(response.data);
+    }
 
     bot.sendMessage(chatId, reply);
+
   } catch (error) {
-    console.error("AI command error:", error.message);
+    console.error("AI request failed:", error.response?.data || error.message);
     bot.sendMessage(chatId, "AI service is currently unavailable.");
   }
 });
