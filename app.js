@@ -1,5 +1,6 @@
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
+const connectDB = require("./database/connect");
 
 const startCommand = require("./commands/start");
 const helpCommand = require("./commands/help");
@@ -15,7 +16,12 @@ if (!token) {
 
 const bot = new TelegramBot(token, { polling: true });
 
-console.log("Bot is running...");
+const startBot = async () => {
+  await connectDB();
+  console.log("Bot is running...");
+};
+
+startBot();
 
 bot.on("polling_error", (error) => {
   console.log("Polling error:", error.message);
@@ -26,7 +32,8 @@ bot.setMyCommands([
   { command: "help", description: "Show help" },
   { command: "about", description: "About this bot" },
   { command: "time", description: "Show current server time" },
-  { command: "joke", description: "Tell a Node.js joke" }
+  { command: "joke", description: "Tell a Node.js joke" },
+  { command: "bye", description: "Say goodbye" }
 ]);
 
 bot.onText(/\/start/, (msg) => {
@@ -50,6 +57,10 @@ bot.onText(/\/joke/, (msg) => {
     msg.chat.id,
     "Node.js developers do not sleep, they wait for callbacks."
   );
+});
+
+bot.onText(/\/bye/, (msg) => {
+  bot.sendMessage(msg.chat.id, "Goodbye Yusuf! See you next time.");
 });
 
 bot.on("message", (msg) => {
