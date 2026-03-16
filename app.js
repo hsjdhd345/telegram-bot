@@ -41,54 +41,89 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.onText(/\/help/, (msg) => {
-  helpCommand(bot, msg);
+  const chatId = msg.chat.id;
+
+  bot.sendChatAction(chatId, "typing");
+
+  setTimeout(() => {
+    helpCommand(bot, msg);
+  }, 1000);
 });
 
 bot.onText(/\/about/, (msg) => {
-  aboutCommand(bot, msg);
+  const chatId = msg.chat.id;
+
+  bot.sendChatAction(chatId, "typing");
+
+  setTimeout(() => {
+    aboutCommand(bot, msg);
+  }, 1000);
 });
 
 bot.onText(/\/time/, (msg) => {
-  bot.sendMessage(msg.chat.id, `Server time: ${getTime()}`);
+  const chatId = msg.chat.id;
+
+  bot.sendChatAction(chatId, "typing");
+
+  setTimeout(() => {
+    bot.sendMessage(chatId, `Server time: ${getTime()}`);
+  }, 1000);
 });
 
 bot.onText(/\/joke/, (msg) => {
-  bot.sendMessage(
-    msg.chat.id,
-    "Node.js developers do not sleep, they wait for callbacks."
-  );
+  const chatId = msg.chat.id;
+
+  bot.sendChatAction(chatId, "typing");
+
+  setTimeout(() => {
+    bot.sendMessage(
+      chatId,
+      "Node.js developers do not sleep, they wait for callbacks."
+    );
+  }, 1500);
 });
 
 bot.onText(/\/bye/, (msg) => {
-  bot.sendMessage(msg.chat.id, "Goodbye Yusuf! See you next time.");
+  const chatId = msg.chat.id;
+
+  bot.sendChatAction(chatId, "typing");
+
+  setTimeout(() => {
+    bot.sendMessage(chatId, "Goodbye Yusuf! See you next time.");
+  }, 1000);
 });
 
 bot.on("message", (msg) => {
   const text = (msg.text || "").toLowerCase();
+  const chatId = msg.chat.id;
 
   if (text.startsWith("/")) return;
 
-  if (text === "help") {
-    helpCommand(bot, msg);
-  } else if (text === "about") {
-    aboutCommand(bot, msg);
-  } else if (text === "time") {
-    bot.sendMessage(msg.chat.id, `Server time: ${getTime()}`);
-  } else if (text === "joke") {
-    bot.sendMessage(
-      msg.chat.id,
-      "Node.js developers do not sleep, they wait for callbacks."
-    );
-  } else if (text === "hi") {
-    bot.sendMessage(msg.chat.id, "Hi Yusuf 👋");
-  } else if (text === "how are you") {
-    bot.sendMessage(
-      msg.chat.id,
-      "I am just a Node.js bot but I'm doing great!"
-    );
-  } else if (text === "bye") {
-    bot.sendMessage(msg.chat.id, "Goodbye Yusuf! See you next time.");
-  } else {
-    bot.sendMessage(msg.chat.id, `You said: ${msg.text}`);
-  }
+  bot.sendChatAction(chatId, "typing");
+
+  setTimeout(() => {
+    if (text === "help") {
+      helpCommand(bot, msg);
+    } else if (text === "about") {
+      aboutCommand(bot, msg);
+    } else if (text === "time") {
+      bot.sendMessage(chatId, `Server time: ${getTime()}`);
+    } else if (text === "joke") {
+      bot.sendMessage(
+        chatId,
+        "Node.js developers do not sleep, they wait for callbacks."
+      );
+    } else if (text === "hi") {
+      bot.sendMessage(chatId, "Hi Yusuf 👋");
+    } else if (text === "how are you") {
+      bot.sendMessage(
+        chatId,
+        "I am just a Node.js bot but I'm doing great!"
+      );
+    } else if (text === "bye") {
+      bot.sendMessage(chatId, "Goodbye Yusuf! See you next time.");
+    } else {
+      bot.sendMessage(chatId, `You said: ${msg.text}`);
+    }
+  }, 1000);
 });
