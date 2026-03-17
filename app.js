@@ -8,9 +8,10 @@ const aboutCommand = require("./commands/about");
 const getTime = require("./utils/getTime");
 
 const token = process.env.BOT_TOKEN;
+const giftedApiKey = process.env.GIFTED_API_KEY || "gifted";
 
 if (!token) {
-  console.error("BOT_TOKEN is missing.");
+  console.error("BOT_TOKEN is missing. Add it to your environment variables.");
   process.exit(1);
 }
 
@@ -22,19 +23,19 @@ bot.on("polling_error", (error) => {
   console.log("Polling error:", error.message);
 });
 
-function getUserName(msg) {
-  return msg.from?.first_name || msg.from?.username || "friend";
-}
-
 bot.setMyCommands([
   { command: "start", description: "Start the bot" },
   { command: "help", description: "Show help" },
   { command: "about", description: "About this bot" },
-  { command: "time", description: "Show server time" },
+  { command: "time", description: "Show current server time" },
   { command: "joke", description: "Tell a joke" },
   { command: "bye", description: "Say goodbye" },
-  { command: "ai", description: "Ask the AI a question" }
+  { command: "ai", description: "Ask the AI something" }
 ]);
+
+function getUserName(msg) {
+  return msg.from?.first_name || msg.from?.username || "friend";
+}
 
 bot.onText(/\/start/, (msg) => {
   startCommand(bot, msg);
@@ -47,7 +48,7 @@ bot.onText(/\/help/, (msg) => {
 
   setTimeout(() => {
     helpCommand(bot, msg);
-  }, 800);
+  }, 1000);
 });
 
 bot.onText(/\/about/, (msg) => {
@@ -57,7 +58,7 @@ bot.onText(/\/about/, (msg) => {
 
   setTimeout(() => {
     aboutCommand(bot, msg);
-  }, 800);
+  }, 1000);
 });
 
 bot.onText(/\/time/, (msg) => {
@@ -67,7 +68,7 @@ bot.onText(/\/time/, (msg) => {
 
   setTimeout(() => {
     bot.sendMessage(chatId, `Server time: ${getTime()}`);
-  }, 800);
+  }, 1000);
 });
 
 bot.onText(/\/joke/, (msg) => {
@@ -80,7 +81,7 @@ bot.onText(/\/joke/, (msg) => {
       chatId,
       "Node.js developers do not sleep, they wait for callbacks."
     );
-  }, 1200);
+  }, 1500);
 });
 
 bot.onText(/\/bye/, (msg) => {
@@ -91,10 +92,9 @@ bot.onText(/\/bye/, (msg) => {
 
   setTimeout(() => {
     bot.sendMessage(chatId, `Goodbye ${name}! See you next time.`);
-  }, 800);
+  }, 1000);
 });
 
-// AI command using Popcat
 bot.onText(/\/ai (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const question = match[1];
@@ -102,33 +102,22 @@ bot.onText(/\/ai (.+)/, async (msg, match) => {
   try {
     bot.sendChatAction(chatId, "typing");
 
-    const url = `https://api.popcat.xyz/chatbot?msg=${encodeURIComponent(
-      question
-    )}&owner=BotOwner&botname=NodeBot`;
-
-    const response = await axios.get(url, {
-      timeout: 15000,
-      validateStatus: () => true,
+    const response = await axios.get("https://api.giftedtech.co.ke/api/ai/ai", {
+      params: {
+        apikey: giftedApiKey,
+        q: question
+      }
     });
 
-    console.log("AI status:", response.status);
-    console.log("AI data:", response.data);
-
-    const reply =
-      response.data?.response ||
-      response.data?.message ||
+    const answer =
       response.data?.result ||
-      null;
+      response.data?.message ||
+      "I did not get a valid response from the AI.";
 
-    if (!reply) {
-      bot.sendMessage(chatId, "AI service returned no valid answer.");
-      return;
-    }
-
-    bot.sendMessage(chatId, reply);
+    bot.sendMessage(chatId, answer);
   } catch (error) {
-    console.log("AI request failed:", error.response?.data || error.message);
-    bot.sendMessage(chatId, "AI service is currently unavailable.");
+    console.error("AI command error:", error.message);
+    bot.sendMessage(chatId, "Sorry, I could not get an AI response right now.");
   }
 });
 
@@ -163,11 +152,14 @@ bot.on("message", (msg) => {
     } else if (text === "hi" || text === "hello") {
       bot.sendMessage(chatId, `Hi ${name} 👋`);
     } else if (text === "how are you") {
-      bot.sendMessage(chatId, `I am doing great, ${name}!`);
+      bot.sendMessage(
+        chatId,
+        `I am doing great, ${name}! Thanks for asking.`
+      );
     } else if (text === "bye") {
-      bot.sendMessage(chatId, `Goodbye ${name}!`);
+      bot.sendMessage(chatId, `Goodbye ${name}! See you next time.`);
     } else {
       bot.sendMessage(chatId, `You said: ${msg.text}`);
     }
-  }, 800);
+  }, 1000);
 });

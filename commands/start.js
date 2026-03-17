@@ -3,18 +3,7 @@ function startCommand(bot, msg) {
 
   bot.sendMessage(
     msg.chat.id,
-    `Welcome ${name}! 👋
-
-I am a Telegram bot built with Node.js.
-
-Try these commands:
-/help - see all commands
-/time - current server time
-/joke - tell a joke
-/ai <question> - ask AI something
-
-Example:
-/ai What is JavaScript?`,
+    `Welcome ${name}! Choose an option below:`,
     {
       reply_markup: {
         keyboard: [

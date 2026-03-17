@@ -1,18 +1,7 @@
 function helpCommand(bot, msg) {
   bot.sendMessage(
     msg.chat.id,
-    `Here are my commands:
-
-/start - start the bot
-/help - show help
-/about - about this bot
-/time - show current server time
-/joke - tell a joke
-/bye - say goodbye
-/ai <question> - ask AI anything
-
-Example:
-/ai explain node.js simply`
+    "Commands:\n/start - start the bot\n/help - show help\n/about - about this bot\n/time - show server time\n/joke - tell a joke\n/bye - say goodbye\n/ai - ask AI a question"
   );
 }
 
