@@ -1,6 +1,5 @@
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
-const OpenAI = require("openai");
 const axios = require("axios");
 
 const startCommand = require("./commands/start");
@@ -9,17 +8,10 @@ const aboutCommand = require("./commands/about");
 const getTime = require("./utils/getTime");
 
 const token = process.env.BOT_TOKEN;
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const giftedApiKey = process.env.GIFTED_API_KEY || "gifted";
 
 if (!token) {
   console.error("BOT_TOKEN is missing.");
-  process.exit(1);
-}
-
-if (!process.env.OPENAI_API_KEY) {
-  console.error("OPENAI_API_KEY is missing.");
   process.exit(1);
 }
 
@@ -147,6 +139,7 @@ bot.onText(/\/fact/, (msg) => {
 bot.onText(/\/roll/, (msg) => {
   const chatId = msg.chat.id;
   const number = Math.floor(Math.random() * 6) + 1;
+
   bot.sendChatAction(chatId, "typing");
 
   setTimeout(() => {
@@ -213,27 +206,23 @@ bot.onText(/\/ai (.+)/, async (msg, match) => {
   try {
     bot.sendChatAction(chatId, "typing");
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a friendly, helpful Telegram bot. Keep answers clear, useful, and not too long unless the user asks for detail."
-        },
-        {
-          role: "user",
-          content: question
-        }
-      ]
+    const url = `https://api.giftedtech.co.ke/api/ai/ai?apikey=${giftedApiKey}&q=${encodeURIComponent(question)}`;
+
+    const response = await axios.get(url, {
+      timeout: 20000
     });
 
+    console.log("Gifted AI response:", response.data);
+
     const reply =
-      response.choices?.[0]?.message?.content || "I could not generate a reply.";
+      response.data?.result ||
+      response.data?.response ||
+      response.data?.message ||
+      "AI returned no valid answer.";
 
     bot.sendMessage(chatId, reply);
   } catch (error) {
-    console.log("OpenAI error:", error.message);
+    console.log("Gifted AI error:", error.response?.data || error.message);
     bot.sendMessage(chatId, "AI service is currently unavailable.");
   }
 });

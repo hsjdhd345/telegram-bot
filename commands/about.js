@@ -6,7 +6,6 @@ function aboutCommand(bot, msg) {
 Built with:
 • Node.js
 • Telegram Bot API
-• OpenAI API
 • Axios
 • Railway hosting
 
